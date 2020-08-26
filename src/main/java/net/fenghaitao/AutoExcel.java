@@ -258,9 +258,9 @@ public class AutoExcel {
             String cellName = name.getNameName();
             /*
             format of cell name：
-            1. dataSource.fieldName[.aggregateType], 如：cb_product.SaleArea.sum
-            2. dataSource.formula.xxxx, 如：cb_product.formula.1
-            3. dataSource.RowNo, 如：cb_product.RowNo
+            1. dataSourceName.fieldName[.aggregateType], eg. cb_product.SaleArea.sum
+            2. dataSourceName.formula.xxxx, eg. cb_product.formula.1
+            3. dataSourceName.RowNo, eg. cb_product.RowNo
             */
             String[] arr = cellName.split("\\.");
             if (arr.length < 2) continue;
