@@ -1,4 +1,4 @@
-[中文](https://github.com/feng-haitao/auto-excel/blob/master/README.zh.md) | English | [Documentation](http://www.fenghaitao.net/autoexcel-user-manual-en)
+[中文](https://github.com/feng-haitao/auto-excel/blob/master/README.zh.md) | English | [Documentation](https://github.com/feng-haitao/auto-excel/wiki)
 
 ## Why AutoExcel?
 
@@ -49,4 +49,4 @@ AutoExcel.save(this.getClass().getResource("/template/Common.xlsx").getPath(),
                excelSetting);
 ```
 
-For more functions, please go to [Documentation](http://www.fenghaitao.net/autoexcel-user-manual-en).
+For more functions, please go to [Documentation](https://github.com/feng-haitao/auto-excel/wiki).
