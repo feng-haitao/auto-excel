@@ -27,3 +27,4 @@ hs_err_pid*
 
 # target directory
 target/
+/src/main/resources/template/CommonTest.xlsx

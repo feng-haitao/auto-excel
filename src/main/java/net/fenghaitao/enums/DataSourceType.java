@@ -1,4 +1,4 @@
-package net.fenghaitao;
+package net.fenghaitao.enums;
 
 public enum DataSourceType {
     BasicObject,

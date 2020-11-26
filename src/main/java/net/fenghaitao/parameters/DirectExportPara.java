@@ -1,10 +1,13 @@
 package net.fenghaitao.parameters;
 
+import lombok.Data;
+
 import java.util.List;
 
 /**
  * The parameter for exporting directly
  */
+@Data
 public class DirectExportPara extends ExportPara {
     private String sheetName;
     /**
@@ -16,25 +19,14 @@ public class DirectExportPara extends ExportPara {
         super.setDataSource(dataSource);
     }
 
-    public DirectExportPara(Object dataSource, String sheetName, List<FieldSetting> fieldSettings) {
+    public DirectExportPara(Object dataSource, List<FieldSetting> fieldSettings) {
         super.setDataSource(dataSource);
-        this.sheetName = sheetName;
         this.fieldSettings = fieldSettings;
     }
 
-    public String getSheetName() {
-        return sheetName;
-    }
-
-    public void setSheetName(String sheetName) {
+    public DirectExportPara(Object dataSource, String sheetName, List<FieldSetting> fieldSettings) {
+        super.setDataSource(dataSource);
         this.sheetName = sheetName;
-    }
-
-    public List<FieldSetting> getFieldSettings() {
-        return fieldSettings;
-    }
-
-    public void setFieldSettings(List<FieldSetting> fieldSettings) {
         this.fieldSettings = fieldSettings;
     }
 }

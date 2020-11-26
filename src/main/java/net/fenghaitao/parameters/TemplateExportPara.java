@@ -1,10 +1,12 @@
 package net.fenghaitao.parameters;
 
-import net.fenghaitao.DataDirection;
+import lombok.Data;
+import net.fenghaitao.enums.DataDirection;
 
 /**
  * The parameter for exporting with template
  */
+@Data
 public class TemplateExportPara extends ExportPara implements TemplatePara {
     /**
      * Name of data source
@@ -26,39 +28,5 @@ public class TemplateExportPara extends ExportPara implements TemplatePara {
     public TemplateExportPara(String dataSourceName, Object dataSource) {
         this.dataSourceName = dataSourceName;
         super.setDataSource(dataSource);
-    }
-
-    @Override
-    public String getDataSourceName() {
-        return dataSourceName;
-    }
-
-    @Override
-    public void setDataSourceName(String dataSourceName) {
-        this.dataSourceName = dataSourceName;
-    }
-
-    public boolean isInserted() {
-        return isInserted;
-    }
-
-    public void setInserted(boolean inserted) {
-        isInserted = inserted;
-    }
-
-    public DataDirection getDataDirection() {
-        return dataDirection;
-    }
-
-    public void setDataDirection(DataDirection dataDirection) {
-        this.dataDirection = dataDirection;
-    }
-
-    public boolean isCopyCellStyle() {
-        return copyCellStyle;
-    }
-
-    public void setCopyCellStyle(boolean copyCellStyle) {
-        this.copyCellStyle = copyCellStyle;
     }
 }

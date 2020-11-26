@@ -1,6 +1,7 @@
 package net.fenghaitao.parameters;
 
-import net.fenghaitao.DataSourceType;
+import lombok.Getter;
+import net.fenghaitao.enums.DataSourceType;
 
 import java.util.List;
 
@@ -9,8 +10,11 @@ public abstract class ExportPara {
      * Data source
      */
     private Object dataSource;
+    @Getter
     private DataSourceType dataSourceType;
+    @Getter
     private Class objectType;
+    @Getter
     private int recordCount;
 
     public Object getDataSource() {
@@ -22,7 +26,7 @@ public abstract class ExportPara {
         if (dataSource != null) {
             if (dataSource instanceof List) {
                 List<Object> tmpDataSource1 = (List<Object>) dataSource;
-                //如果数据源是数组或列表
+                // If the data source is an array or list
                 if (tmpDataSource1.isEmpty()) {
                     dataSource = null;
                 } else {
@@ -31,24 +35,11 @@ public abstract class ExportPara {
                     recordCount = tmpDataSource1.size();
                 }
             } else {
-                //如果数据源是一个基础对象
+                // If the data source is a base object
                 objectType = dataSource.getClass();
                 dataSourceType = dataSourceType.BasicObject;
                 recordCount = 1;
             }
         }
     }
-
-    public DataSourceType getDataSourceType() {
-        return dataSourceType;
-    }
-
-    public Class getObjectType() {
-        return objectType;
-    }
-
-    public int getRecordCount() {
-        return recordCount;
-    }
-
 }

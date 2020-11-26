@@ -1,12 +1,14 @@
 package net.fenghaitao;
 
+import net.fenghaitao.model.Contract;
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,7 +34,7 @@ public class OtherTest {
         }
     }
     @Test
-    public void Test3() throws IllegalAccessException, NoSuchFieldException {
+    public void Test3() throws NoSuchFieldException, IllegalAccessException {
         Object obj = new User("ivan", 15, new Date());
         Class clz = obj.getClass();
         Field[] fields = clz.getDeclaredFields();

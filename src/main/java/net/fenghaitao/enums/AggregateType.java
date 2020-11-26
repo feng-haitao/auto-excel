@@ -1,4 +1,4 @@
-package net.fenghaitao.managers;
+package net.fenghaitao.enums;
 
 public enum AggregateType {
     NONE,

@@ -1,10 +1,12 @@
 package net.fenghaitao.utils;
 
+import net.fenghaitao.context.ExportContext;
 import org.apache.poi.ss.formula.eval.ErrorEval;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CellUtil {
@@ -25,15 +27,25 @@ public class CellUtil {
             cell.setCellValue((String) value);
         } else if (value instanceof Date) {
             cell.setCellValue((Date) value);
-            Workbook workbook = cell.getSheet().getWorkbook();
-            CellStyle dateStyle = workbook.createCellStyle();
-            DataFormat format = workbook.createDataFormat();
-            dateStyle.setDataFormat(format.getFormat("yyyy-mm-dd"));
-            cell.setCellStyle(dateStyle);
         } else {
             cell.setCellValue(value.toString());
         }
     }
+
+    public static void setStyle(Cell cell, Object value, ExportContext exportContext) {
+        if (value == null)
+            return;
+
+        if (value instanceof BigDecimal) {
+            cell.setCellStyle(exportContext.getDefaultNumericStyle());
+        } else if (value instanceof Number) {
+            cell.setCellStyle(exportContext.getDefaultNumericStyle());
+        } else if (value instanceof Date) {
+            cell.setCellStyle(exportContext.getDefaultDateStyle());
+        }
+    }
+
+
 
     /**
      * Get the value of any type of cell
@@ -52,8 +64,7 @@ public class CellUtil {
                 return getValue(cell, cell.getCachedFormulaResultType());
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    return dateFormat.format(cell.getDateCellValue());
+                    return cell.getDateCellValue();
                 } else {
                     return cell.getNumericCellValue();
                 }

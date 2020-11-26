@@ -1,40 +1,22 @@
 package net.fenghaitao.parameters;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
- * Setting for the column displayed in the final excel.
+ * Setting for the column displayed in the excel.
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FieldSetting {
-    public FieldSetting() {
-    }
-
-    public FieldSetting(String fieldName, String displayName) {
-        this.fieldName = fieldName;
-        this.displayName = displayName;
-    }
-
     /**
      * Field name of the object
      */
     private String fieldName;
-
     /**
      * The column name displayed in the final excel
      */
     private String displayName;
-
-    public String getFieldName() {
-        return fieldName;
-    }
-
-    public void setFieldName(String fieldName) {
-        this.fieldName = fieldName;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
 }
