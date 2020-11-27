@@ -14,6 +14,23 @@ Excel import and export is very common in software development, as long as you a
 
 **AutoExcel** does not over-encapsulate the POI, but makes full use of Excel's own feature-the name manager, through some tricks, the cell and the data source are mapped, thereby decoupling the programmer and the POI, and avoid hard code, so that import and export work becomes enjoyable and no longer boring.
 
+## Features
+
+- Export with template
+  - Support basic object and table data
+  - A single sheet supports multiple data sources of variable length
+  - Support horizontal filling of data
+  - Automatically apply cell style
+  - Auto fill in line number
+  - Auto fill formula
+  - Automatic summary
+- Export directly
+  - Export with basic style
+  - Automatically adjust column width
+- Import
+  - Automatic data type conversion
+- Support millions of data import and export in seconds
+
 ## Function preview
 
 | Before export                                                | After export                                                 |
