@@ -73,4 +73,14 @@ AutoExcel.save(this.getClass().getResource("/template/Export.xlsx").getPath(),
                excelSetting);
 ```
 
+## Million data test
+
+Unit: ms
+|                          | 10W rows and 10 columns of data | 100W rows and 10 columns of data |
+| ------------------------ | ------------------------------- | -------------------------------- |
+| Export with template     | 6,258                           | 23,540                           |
+| Export directly          | 5,711                           | 24,952                           |
+| Import                   | 4,466                           | 21,595                           |
+| Import + Type conversion | 4,823                           | 26,279                           |
+
 For more functions, please go to [Documentation](https://github.com/feng-haitao/auto-excel/wiki).
