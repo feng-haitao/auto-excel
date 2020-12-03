@@ -17,6 +17,7 @@ Excel import and export is very common in software development, as long as you a
 ## Features
 
 - Export with template
+  - Support multiple sheets
   - Support basic object and table data
   - A single sheet supports multiple data sources of variable length
   - Support horizontal filling of data
@@ -25,9 +26,11 @@ Excel import and export is very common in software development, as long as you a
   - Auto fill formula
   - Automatic summary
 - Export directly
+  - Support multiple sheets
   - Export with basic style
   - Automatically adjust column width
 - Import
+  - Support multiple sheets
   - Automatic data type conversion
 - Support millions of data import and export in seconds
 
@@ -35,33 +38,37 @@ Excel import and export is very common in software development, as long as you a
 
 | Before export                                                | After export                                                 |
 | :----------------------------------------------------------- | ------------------------------------------------------------ |
-| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/basic_object.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/basic_object_result.png) |
-| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/single_table.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/single_table_result.png) |
-| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/multi_table.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/multi_table_result.png) |
-| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/fill_data_to_the_right.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/08/fill_data_to_the_right_result.png) |
+| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/basic_object.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/basic_object_result.png) |
+| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/single_table.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/single_table_result.png) |
+| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/multi_table.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/multi_table_result.png) |
+| ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/fill_data_to_the_right.png) | ![image](http://www.fenghaitao.net/wp-content/uploads/2020/12/fill_data_to_the_right_result.png) |
 
-To achieve the above export, you only need to write the following small amount of code (you need additional code to prepare the data source, for example, from the database)
+To achieve all of the above exports, you only need to write the following small amount of code (you need additional code to prepare the data source, for example, from the database. In the following example, use `DataGenerator` to generate demo data)
 
 ```java
+// Set export parameters, such as data source name, data source, etc.
 List<TemplateExportPara> paras = new ArrayList<>();
 paras.add(new TemplateExportPara("BusinessUnit", DataGenerator.genBusinessUnit()));
 paras.add(new TemplateExportPara("Contract", DataGenerator.genContracts()));
-paras.add(new TemplateExportPara("Project", DataGenerator.genProjects()));
+paras.add(new TemplateExportPara("Project", DataGenerator.genProjects(1)));
 
-List<Product> products = DataGenerator.genProducts();
+List<Product> products = DataGenerator.genProducts(1);
 TemplateExportPara para3 = new TemplateExportPara("Product", products);
+// When a single sheet has multiple data sources, the data source above should be set to inserted
 para3.setInserted(true);
 paras.add(para3);
 
 TemplateExportPara para5 = new TemplateExportPara("Product2", products);
+// Horizontal fill
 para5.setDataDirection(DataDirection.Right);
 paras.add(para5);
 
+// (Optional operation) Remove unnecessary sheets
 ExcelSetting excelSetting = new ExcelSetting();
 excelSetting.setRemovedSheets(Arrays.asList("will be removed"));
 
-AutoExcel.save(this.getClass().getResource("/template/Common.xlsx").getPath(),
-               this.getClass().getResource("/").getPath() + "ExportWithTemplate.xlsx",
+AutoExcel.save(this.getClass().getResource("/template/Export.xlsx").getPath(),
+               this.getClass().getResource("/").getPath() + "AutoExcel.xlsx",
                paras,
                excelSetting);
 ```
