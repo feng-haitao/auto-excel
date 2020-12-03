@@ -24,22 +24,24 @@ public class AutoExcelTest {
      */
     @Test
     public void exportWithTemplate() throws ParseException {
+        // Set export parameters, such as data source name, data source, etc.
         List<TemplateExportPara> paras = new ArrayList<>();
-
-        List<Project> projects = DataGenerator.genProjects(200);
         paras.add(new TemplateExportPara("BusinessUnit", DataGenerator.genBusinessUnit()));
         paras.add(new TemplateExportPara("Contract", DataGenerator.genContracts()));
-        paras.add(new TemplateExportPara("Project", projects));
+        paras.add(new TemplateExportPara("Project", DataGenerator.genProjects(1)));
 
-        List<Product> products = DataGenerator.genProducts(2);
+        List<Product> products = DataGenerator.genProducts(1);
         TemplateExportPara para3 = new TemplateExportPara("Product", products);
+        // When a single sheet has multiple data sources, the data source above should be set to inserted
         para3.setInserted(true);
         paras.add(para3);
 
         TemplateExportPara para5 = new TemplateExportPara("Product2", products);
+        // Horizontal fill
         para5.setDataDirection(DataDirection.Right);
         paras.add(para5);
 
+        // (Optional operation) Remove unnecessary sheets
         ExcelSetting excelSetting = new ExcelSetting();
         excelSetting.setRemovedSheets(Arrays.asList("will be removed"));
 
@@ -72,14 +74,17 @@ public class AutoExcelTest {
         }};
         String fileName = this.getClass().getResource("/template/Import.xlsx").getPath();
         DataSet dataSet = AutoExcel.read(fileName, importParas);
-
+        // Method 1: Obtain the original data without type conversion, you can
+        //           check whether the data meets the requirements in this way
         List<Map<String, Object>> products = dataSet.get("Product");
         List<Map<String, Object>> projects = dataSet.get("Project");
-//        or:
-//        List<Product> products = dataSet.get(0, Product.class);
-//        List<Project> projects= dataSet.get(1, Project.class);
-//        or:
-//        List<Product> products = dataSet.get("Product", Product.class);
-//        List<Project> projects = dataSet.get("Project", Project.class);
+        // Method 2: Obtain the data of the specified class through the sheet index, the type is
+        //           automatically converted, and an exception will be thrown if the conversion fails
+        // List<Product> products = dataSet.get(0, Product.class);
+        // List<Project> projects= dataSet.get(1, Project.class);
+        // Method 3: Obtain the data of the specified class through the sheet name, the type is
+        //           automatically converted, and an exception will be thrown if the conversion fails
+        // List<Product> products = dataSet.get("Product", Product.class);
+        // List<Project> projects = dataSet.get("Project", Project.class);
     }
 }
