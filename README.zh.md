@@ -1,4 +1,4 @@
-中文 | [English](https://github.com/feng-haitao/auto-excel/blob/master/README.md) | [文档](http://www.fenghaitao.net/autoexcel-user-manual-v2)
+中文 | [English](https://github.com/feng-haitao/auto-excel/blob/master/README.md) | [文档](https://juejin.cn/post/6903170257574166536)
 
 ## 为什么使用AutoExcel？
 
