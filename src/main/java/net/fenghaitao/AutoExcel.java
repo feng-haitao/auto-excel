@@ -26,7 +26,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class AutoExcel {
-    private static final String regName = "'?%s'?!\\$([a-z]+)\\$([0-9]+)";
+    private static final String regCellName = "'?%s'?!\\$([a-z]+)\\$([0-9]+)";
+    private static final Pattern cellRefPattern = Pattern.compile("([a-z]+)([0-9]+)", Pattern.CASE_INSENSITIVE);
 
     /**
      * Generate Excel according to the specified template and parameters
@@ -100,7 +101,7 @@ public class AutoExcel {
         List<BlockNameResolver> blockNameResolvers = resolveCellNames(workbook, templateExportParas, exportContext);
 
         //cache the properties of data source to be used
-        Map<String, Map<String, Field>> dataSourceNameFields = new HashMap<>();
+        Map<String, Map<String, Field>> dataSourceNameFields = new HashMap<>(16);
         for (TemplateExportPara templateExportPara : templateExportParas) {
             if (templateExportPara.getDataSource() != null && templateExportPara.getRecordCount() > 0)
                 dataSourceNameFields.put(templateExportPara.getDataSourceName().toLowerCase(), mapFieldNameField(templateExportPara.getObjectType()));
@@ -117,39 +118,48 @@ public class AutoExcel {
 
             Sheet sheet = blockNameResolver.getSheet();
             int recordCount = templateExportPara.getRecordCount();
-            //if data source is List
-            if (templateExportPara.getDataSourceType() == DataSourceType.List) {
-                if (templateExportPara.isInserted() && recordCount > 1) {
-                    int startRow = blockNameResolver.getFieldNameCells().entrySet().iterator().next().getValue().getRowIndex() + 1;
-                    Sheet xssfSheet = exportContext.getXssfSheet(blockNameResolver.getSheetName());
-                    //Move the other rows to free up enough space to populate the current data source
-                    xssfSheet.shiftRows(startRow, xssfSheet.getLastRowNum(), recordCount - 1, true, false);
-                    //After the row is moved, the original cell position changes and the cell location saved in the cell
-                    //name manager needs to be refreshed
-                    reLocate(blockNameResolvers, blockNameResolver.getSheetName(), exportContext);
-                }
+            try {
+                //if data source is List
+                if (templateExportPara.getDataSourceType() == DataSourceType.List) {
+                    if (templateExportPara.isInserted() && recordCount > 1) {
+                        int startRow = blockNameResolver.getFieldNameCells().entrySet().iterator()
+                            .next().getValue().getRowIndex() + 1;
+                        Sheet xssfSheet = exportContext.getXssfSheet(blockNameResolver.getSheetName());
+                        //Move the other rows to free up enough space to populate the current data source
+                        xssfSheet.shiftRows(startRow, xssfSheet.getLastRowNum(), recordCount - 1, true, false);
+                        //After the row is moved, the original cell position changes and the cell location saved in the cell
+                        //name manager needs to be refreshed
+                        reLocate(blockNameResolvers, blockNameResolver.getSheetName(), exportContext);
+                    }
 
-                int step = 0;
-                for (Object record : (List) dataSource) {
-                    writeRecordByCellName(blockNameResolver, record, dataSourceNameFields, step, exportContext);
-                    writeFormula(blockNameResolver, step, exportContext);
-                    writeRowNo(blockNameResolver, step, exportContext);
-                    ++step;
-                }
-                writeAggregate(blockNameResolver, recordCount, exportContext);
+                    int step = 0;
+                    for (Object record : (List) dataSource) {
+                        writeRecordByCellName(blockNameResolver, record, dataSourceNameFields, step,
+                            exportContext);
+                        writeFormula(blockNameResolver, step, exportContext);
+                        writeRowNo(blockNameResolver, step, exportContext);
+                        ++step;
+                    }
+                    writeAggregate(blockNameResolver, recordCount, exportContext);
 
-                //if data direction is right, the column width needs to be adaptive
-                if (templateExportPara.getDataDirection() == DataDirection.Right) {
-                    int startColIndex = blockNameResolver.getFieldNameCells().entrySet().iterator().next().getValue().getColIndex();
-                    SheetUtil.setColumnWidth(sheet, startColIndex, recordCount, exportContext);
-                }
+                    //if data direction is right, the column width needs to be adaptive
+                    if (templateExportPara.getDataDirection() == DataDirection.Right) {
+                        int startColIndex = blockNameResolver.getFieldNameCells().entrySet().iterator()
+                            .next().getValue().getColIndex();
+                        SheetUtil.setColumnWidth(sheet, startColIndex, recordCount, exportContext);
+                    }
 
-                if (blockNameResolver.getFormulaCellManagers().size() > 0 || blockNameResolver.getFieldNameAggregateCells().size() > 0)
-                    forceFormulaRecalculation = true;
+                    if (blockNameResolver.getFormulaCellManagers().size() > 0 || blockNameResolver.getFieldNameAggregateCells().size() > 0)
+                        forceFormulaRecalculation = true;
+                }
+                //if data source is a basic object
+                else {
+                    writeRecordByCellName(blockNameResolver, dataSource, dataSourceNameFields, 0,
+                        exportContext);
+                }
             }
-            //if data source is a basic object
-            else {
-                writeRecordByCellName(blockNameResolver, dataSource, dataSourceNameFields, 0, exportContext);
+            catch (IllegalAccessException e) {
+                throw new AutoExcelException(e);
             }
         }
 
@@ -216,14 +226,20 @@ public class AutoExcel {
             }
             //write data
             ++rowIndex;
-            if (dataSourceType == DataSourceType.List) {
-                for (Object record : (List) directExportPara.getDataSource()) {
-                    writeRecordByFieldSetting(sheet, fieldSettings, record, fieldNameFields, rowIndex, exportContext);
-                    ++rowIndex;
+            try {
+                if (dataSourceType == DataSourceType.List) {
+                    for (Object record : (List) directExportPara.getDataSource()) {
+                        writeRecordByFieldSetting(sheet, fieldSettings, record, fieldNameFields,
+                            rowIndex, exportContext);
+                        ++rowIndex;
+                    }
+                } else {
+                    writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(),
+                        fieldNameFields, rowIndex, exportContext);
                 }
-            } else {
-                writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(), fieldNameFields,
-                        rowIndex, exportContext);
+            }
+            catch (IllegalAccessException e) {
+                throw new AutoExcelException(e);
             }
             SheetUtil.setColumnWidth(sheet, 0, fieldSettings.size(), exportContext);
         }
@@ -283,7 +299,7 @@ public class AutoExcel {
 
                 blockNameResolvers.add(tmpBlockNameResolver);
 
-                String regex = String.format(regName, Pattern.quote(sheetName));
+                String regex = String.format(regCellName, Pattern.quote(sheetName));
                 pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
             }
 
@@ -312,10 +328,8 @@ public class AutoExcel {
                     try {
                         aggregateType = AggregateType.valueOf(arr[2].toUpperCase());
                     } catch (Exception ex) {
-                        //do nothing
-                    }
-                    if (aggregateType == AggregateType.NONE)
                         continue;
+                    }
 
                     AggregateCellManager aggregateCellManager = new AggregateCellManager();
                     aggregateCellManager.setCellName(cellName);
@@ -352,7 +366,7 @@ public class AutoExcel {
      * Generate filedName-properties key value mapping
      */
     private static Map<String, Field> mapFieldNameField(Class aClass) {
-        Map<String, Field> result = new HashMap<>();
+        Map<String, Field> result = new HashMap<>(16);
         for (Field field : aClass.getDeclaredFields())
             result.put(field.getName().toLowerCase(), field);
 
@@ -368,7 +382,7 @@ public class AutoExcel {
             if (!blockNameResolver.getSheetName().equals(currSheetName))
                 continue;
 
-            String regex = String.format(regName, currSheetName);
+            String regex = String.format(regCellName, currSheetName);
             Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
 
             Workbook workbook = exportContext.getWorkbook();
@@ -403,7 +417,7 @@ public class AutoExcel {
                                               Object dataSourceRecord,
                                               Map<String, Map<String, Field>> dataSourceNameFields,
                                               int step,
-                                              ExportContext exportContext) {
+                                              ExportContext exportContext) throws IllegalAccessException {
         for (Map.Entry<String, CellManager> entry : blockNameResolver.getFieldNameCells().entrySet()) {
             String fieldName = entry.getKey();
             CellManager cellManager = entry.getValue();
@@ -411,12 +425,7 @@ public class AutoExcel {
             if (dataSourceNameFields.containsKey(dataSourceName) && dataSourceNameFields.get(dataSourceName).containsKey(fieldName)) {
                 Field field = dataSourceNameFields.get(dataSourceName).get(fieldName);
                 field.setAccessible(true);
-                Object cellValue;
-                try {
-                    cellValue = field.get(dataSourceRecord);
-                } catch (IllegalAccessException e) {
-                    throw new AutoExcelException(e);
-                }
+                Object cellValue = field.get(dataSourceRecord);
                 int rowIndex = cellManager.getRowIndex();
                 int colIndex = cellManager.getColIndex();
 
@@ -444,19 +453,14 @@ public class AutoExcel {
                                                   Object dataSourceRecord,
                                                   Map<String, Field> fieldNameFields,
                                                   int rowIndex,
-                                                  ExportContext exportContext) {
+                                                  ExportContext exportContext) throws IllegalAccessException {
         int colIndex = 0;
         for (FieldSetting fieldSetting : fieldSettings) {
             String fieldName = fieldSetting.getFieldName().toLowerCase();
             if (fieldNameFields.containsKey(fieldName)) {
                 Field field = fieldNameFields.get(fieldName);
                 field.setAccessible(true);
-                Object value;
-                try {
-                    value = field.get(dataSourceRecord);
-                } catch (IllegalAccessException e) {
-                    throw new AutoExcelException(e);
-                }
+                Object value = field.get(dataSourceRecord);
                 Cell cell = SheetUtil.setValue(sheet, rowIndex, colIndex, value, exportContext);
                 CellUtil.setStyle(cell, value, exportContext);
                 exportContext.refreshMaxColumnWidth(sheet.getSheetName(), colIndex, value);
@@ -508,8 +512,7 @@ public class AutoExcel {
             return;
 
         blockNameResolver.getFormulaCellManagers().forEach(formulaCellManager -> {
-            Pattern pattern = Pattern.compile("([a-z]+)([0-9]+)", Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(formulaCellManager.getFormula());
+            Matcher matcher = cellRefPattern.matcher(formulaCellManager.getFormula());
             StringBuffer sb = new StringBuffer();
             while (matcher.find()) {
                 String colName = matcher.group(1);

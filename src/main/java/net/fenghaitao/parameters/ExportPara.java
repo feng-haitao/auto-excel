@@ -31,13 +31,13 @@ public abstract class ExportPara {
                     dataSource = null;
                 } else {
                     objectType = tmpDataSource1.get(0).getClass();
-                    dataSourceType = dataSourceType.List;
+                    dataSourceType = DataSourceType.List;
                     recordCount = tmpDataSource1.size();
                 }
             } else {
                 // If the data source is a base object
                 objectType = dataSource.getClass();
-                dataSourceType = dataSourceType.BasicObject;
+                dataSourceType = DataSourceType.BasicObject;
                 recordCount = 1;
             }
         }

@@ -1,5 +1,6 @@
 package net.fenghaitao;
 
+import java.util.Date;
 import net.fenghaitao.model.BusinessUnit;
 import net.fenghaitao.model.Contract;
 import net.fenghaitao.model.Product;
@@ -19,7 +20,7 @@ public class DataGenerator {
 
     public static BusinessUnit genBusinessUnit() throws ParseException {
         BusinessUnit businessUnit = new BusinessUnit("Zhongshan FHT Co., LTD", "ZS", "www.fenghaitao.com",
-                "Zhongshan city, Guangdong Province", format.parse("2020-08-14 17:32"), "冯海涛");
+                "Zhongshan city, Guangdong Province", new Date(), "冯海涛");
         return businessUnit;
     }
 

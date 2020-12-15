@@ -68,7 +68,7 @@ public class DataSet {
      * Generate filedName-properties key value mapping
      */
     private Map<String, Field> mapFieldNameField(Class aClass) {
-        Map<String, Field> result = new HashMap<>();
+        Map<String, Field> result = new HashMap<>(16);
         for (Field field : aClass.getDeclaredFields())
             result.put(field.getName().toLowerCase(), field);
 

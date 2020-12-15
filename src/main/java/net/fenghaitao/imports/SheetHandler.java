@@ -62,7 +62,7 @@ public class SheetHandler extends DefaultHandler {
         switch (qName) {
             case XmlConstants.TAG_DIMENSION:
                 curRow = 0;
-                columnFieldNames = new HashMap<>();
+                columnFieldNames = new HashMap<>(16);
                 break;
 
             case XmlConstants.TAG_ROW:
@@ -222,7 +222,7 @@ public class SheetHandler extends DefaultHandler {
     }
 
     public void initDataRow() {
-        dataRow = new HashMap<>();
+        dataRow = new HashMap<>(columnFieldNames.size() * 4 / 3 + 1);
         columnFieldNames.values().forEach(fieldName -> dataRow.put(fieldName, null));
     }
 
