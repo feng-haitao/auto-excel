@@ -253,10 +253,10 @@ public class AutoExcel {
             String sheetName = name.getSheetName();
             String cellName = name.getNameName();
             /*
-            format of cell name：
-            1. dataSourceName.fieldName[.aggregateType], eg. cb_product.SaleArea.sum
-            2. dataSourceName.formula.xxxx, eg. cb_product.formula.1
-            3. dataSourceName.RowNo, eg. cb_product.RowNo
+            * format of cell name:
+            * 1. dataSourceName.fieldName[.aggregateType], eg. cb_product.SaleArea.sum
+            * 2. dataSourceName.formula.xxxx, eg. cb_product.formula.1
+            * 3. dataSourceName.RowNo, eg. cb_product.RowNo
             */
             String[] arr = cellName.split("\\.");
             if (arr.length < 2) continue;
@@ -556,6 +556,7 @@ public class AutoExcel {
      *
      * @param fileName    file name to read
      * @param importParas the parameter for import
+     * @return
      */
     public static DataSet read(String fileName, List<ImportPara> importParas) {
         if (!(new File(fileName)).exists())
