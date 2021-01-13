@@ -83,4 +83,13 @@ AutoExcel.save(this.getClass().getResource("/template/Export.xlsx").getPath(),
 | 导入      | 4,466         | 21,595         |
 | 导入+转换 | 4,823         | 26,279         |
 
+## Maven
+```xml
+<dependency>
+  <groupId>net.fenghaitao</groupId>
+  <artifactId>auto-excel</artifactId>
+  <version>2.0.0</version>
+</dependency>
+```
+
 更多功能请前往[文档](https://juejin.cn/post/6903170257574166536)
