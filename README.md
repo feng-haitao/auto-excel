@@ -83,4 +83,12 @@ Unit: ms
 | Import                   | 4,466                           | 21,595                           |
 | Import + Type conversion | 4,823                           | 26,279                           |
 
+## Maven
+```xml
+<dependency>
+  <groupId>net.fenghaitao</groupId>
+  <artifactId>auto-excel</artifactId>
+  <version>2.0.0</version>
+</dependency>
+```
 For more functions, please go to [Documentation](https://github.com/feng-haitao/auto-excel/wiki).
