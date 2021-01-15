@@ -1,4 +1,4 @@
-中文 | [English](https://github.com/feng-haitao/auto-excel/blob/master/README.md) | [文档](https://juejin.cn/post/6903170257574166536)
+中文 | [English](https://github.com/feng-haitao/auto-excel/blob/master/README.md) | [文档](https://juejin.cn/post/6917606463921717262)
 
 ## 为什么使用AutoExcel？
 
@@ -92,4 +92,4 @@ AutoExcel.save(this.getClass().getResource("/template/Export.xlsx").getPath(),
 </dependency>
 ```
 
-更多功能请前往[文档](https://juejin.cn/post/6903170257574166536)
+更多功能请前往[文档](https://juejin.cn/post/6917606463921717262)
