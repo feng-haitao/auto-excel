@@ -1,4 +1,4 @@
-[中文](https://github.com/feng-haitao/auto-excel/blob/master/README.zh.md) | English | [Documentation](https://github.com/feng-haitao/auto-excel/wiki)
+[中文](https://github.com/feng-haitao/auto-excel/blob/master/README.zh.md) | English | [Documentation](https://www.codeproject.com/Articles/5280754/autoexcel-user-manual-en)
 
 ## Why AutoExcel?
 
@@ -91,4 +91,4 @@ Unit: ms
   <version>2.0.0</version>
 </dependency>
 ```
-For more functions, please go to [Documentation](https://github.com/feng-haitao/auto-excel/wiki).
+For more functions, please go to [Documentation](https://www.codeproject.com/Articles/5280754/autoexcel-user-manual-en).
