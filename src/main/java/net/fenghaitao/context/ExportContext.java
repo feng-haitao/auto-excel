@@ -100,8 +100,7 @@ public class ExportContext {
         if (columnWidthMap == null) {
             columnWidthMap = new HashMap<>(16);
             sheetColumnWidthMap.put(sheetName, columnWidthMap);
-        }
-        else {
+        } else {
             curColWidth = columnWidthMap.get(colIndex);
         }
 

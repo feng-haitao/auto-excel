@@ -15,6 +15,7 @@ import net.fenghaitao.export.BlockNameResolver;
 import net.fenghaitao.utils.SheetUtil;
 import net.fenghaitao.export.managers.*;
 import net.fenghaitao.parameters.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
@@ -193,62 +194,69 @@ public class AutoExcel {
      */
     public static void save(String outputPath, List<DirectExportPara> directExportParas) {
         ExportContext exportContext = new ExportContext(ExportType.Direct);
-        Workbook workbook = exportContext.getWorkbook();
-        Sheet sheet;
+//        Workbook workbook = exportContext.getWorkbook();
 
         for (DirectExportPara directExportPara : directExportParas) {
-            if (directExportPara.getDataSource() == null)
-                continue;
-
-            if (directExportPara.getSheetName() == null || directExportPara.getSheetName().isEmpty())
-                sheet = workbook.createSheet();
-            else
-                sheet = workbook.createSheet(directExportPara.getSheetName());
-
-            DataSourceType dataSourceType = directExportPara.getDataSourceType();
-            Map<String, Field> fieldNameFields = mapFieldNameField(directExportPara.getObjectType());
-
-            List<FieldSetting> fieldSettings = directExportPara.getFieldSettings();
-            if (fieldSettings == null || fieldSettings.size() == 0) {
-                fieldSettings = fieldNameFields.values()
-                        .stream()
-                        .map(m -> new FieldSetting(m.getName(), m.getName()))
-                        .collect(Collectors.toList());
-            }
-            int rowIndex = 0;
-            int colIndex = 0;
-            //write title
-            for (FieldSetting fieldSetting : fieldSettings) {
-                SheetUtil.setValue(sheet, rowIndex, colIndex, fieldSetting.getDisplayName(), exportContext)
-                        .setCellStyle(exportContext.getDefaultHeadStyle());
-                exportContext.refreshMaxColumnWidth(sheet.getSheetName(), colIndex, fieldSetting.getDisplayName());
-                ++colIndex;
-            }
-            //write data
-            ++rowIndex;
-            try {
-                if (dataSourceType == DataSourceType.List) {
-                    for (Object record : (List) directExportPara.getDataSource()) {
-                        if (record instanceof List) {
-                            writeRecordByFieldSetting(sheet, fieldSettings, record,
-                                    rowIndex, exportContext);
-                        } else {
-                            writeRecordByFieldSetting(sheet, fieldSettings, record,fieldNameFields,
-                                    rowIndex, exportContext);
-                        }
-                        ++rowIndex;
-                    }
-                } else {
-                    writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(),
-                        fieldNameFields, rowIndex, exportContext);
-                }
-            }
-            catch (IllegalAccessException e) {
-                throw new AutoExcelException(e);
-            }
-            SheetUtil.setColumnWidth(sheet, 0, fieldSettings.size(), exportContext);
+            createSheet(exportContext,directExportPara);
         }
         exportContext.end(outputPath);
+    }
+
+    public static void createSheet(ExportContext exportContext,DirectExportPara directExportPara) {
+        Workbook workbook = exportContext.getWorkbook();
+        Sheet sheet;
+        if (directExportPara.getDataSource() == null)
+            return;
+
+        if (StringUtils.isEmpty(directExportPara.getSheetName()))
+            sheet = workbook.createSheet();
+        else
+            sheet = workbook.createSheet(directExportPara.getSheetName());
+
+        DataSourceType dataSourceType = directExportPara.getDataSourceType();
+        Map<String, Field> fieldNameFields = mapFieldNameField(directExportPara.getObjectType());
+
+        List<FieldSetting> fieldSettings = directExportPara.getFieldSettings();
+        //auto generate filedSettings,use filed name as display name
+        if (fieldSettings == null || fieldSettings.size() == 0) {
+            fieldSettings = fieldNameFields.values()
+                    .stream()
+                    .map(m -> new FieldSetting(m.getName(), m.getName()))
+                    .collect(Collectors.toList());
+        }
+        int rowIndex = 0;
+        int colIndex = 0;
+        //write title
+        for (FieldSetting fieldSetting : fieldSettings) {
+            SheetUtil.setValue(sheet, rowIndex, colIndex, fieldSetting.getDisplayName(), exportContext)
+                    .setCellStyle(exportContext.getDefaultHeadStyle());
+            exportContext.refreshMaxColumnWidth(sheet.getSheetName(), colIndex, fieldSetting.getDisplayName());
+            ++colIndex;
+        }
+        //write data
+        ++rowIndex;
+        try {
+            if (dataSourceType == DataSourceType.List) {
+                for (Object record : (List) directExportPara.getDataSource()) {
+                    if (record instanceof List) {
+                        writeRecordByFieldSetting(sheet, fieldSettings, record,
+                                rowIndex, exportContext);
+                    } else {
+                        writeRecordByFieldSetting(sheet, fieldSettings, record,fieldNameFields,
+                                rowIndex, exportContext);
+                    }
+                    ++rowIndex;
+                }
+            } else {
+                writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(),
+                        fieldNameFields, rowIndex, exportContext);
+            }
+        }
+        catch (IllegalAccessException e) {
+            throw new AutoExcelException(e);
+        }
+        SheetUtil.setColumnWidth(sheet, 0, fieldSettings.size(), exportContext);
+
     }
 
     /**
