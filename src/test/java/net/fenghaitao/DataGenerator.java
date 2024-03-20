@@ -1,6 +1,7 @@
 package net.fenghaitao;
 
-import java.util.Date;
+import java.util.*;
+
 import net.fenghaitao.model.BusinessUnit;
 import net.fenghaitao.model.Contract;
 import net.fenghaitao.model.Product;
@@ -11,8 +12,6 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataGenerator {
 
@@ -34,7 +33,31 @@ public class DataGenerator {
         return contracts;
     }
 
-    public static List<Project> genProjects(int times) throws ParseException {
+    public static Contract genSingleContracts() throws ParseException {
+        return new Contract("C0000-0005", "Expected contract", format.parse("2020-07-15 18:10"), new BigDecimal("28500.00"), new BigDecimal("0"), new BigDecimal("0"));
+    }
+
+
+    public static List<Object> genListPorjects(int times) {
+        List<Object> listProjects = new ArrayList<>();
+        ArrayList<String> strings = new ArrayList<>();
+        Collections.addAll(strings,"Project Name 01", "Some text here. Some text here. 1", "test1");
+        for (int i = 0; i < times; i++) {
+            Collections.addAll(listProjects,strings,strings,strings);
+        }
+        return listProjects;
+    }
+
+    public static List<FieldSetting> genListFieldSettings() {
+        List<FieldSetting> fieldSettings = new ArrayList<>();
+        fieldSettings.add(new FieldSetting("projName", "Project Name"));
+        fieldSettings.add(new FieldSetting("projInfo", "Project Info."));
+        fieldSettings.add(new FieldSetting("basalArea", "Basal Area"));
+        return fieldSettings;
+    }
+
+
+        public static List<Project> genProjects(int times) throws ParseException {
         List<Project> projects = new ArrayList<>();
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         for (int i = 0; i < times; ++i) {

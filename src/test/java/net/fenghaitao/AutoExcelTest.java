@@ -62,7 +62,9 @@ public class AutoExcelTest {
         List<DirectExportPara> paras = new ArrayList<>();
         paras.add(new DirectExportPara(DataGenerator.genProjects(200), "Projects",
                 DataGenerator.genProjectFieldSettings()));
-        paras.add(new DirectExportPara(DataGenerator.genContracts()));
+        paras.add(new DirectExportPara(DataGenerator.genSingleContracts()));
+        paras.add(new DirectExportPara(DataGenerator.genListPorjects(10),"lists",
+                DataGenerator.genListFieldSettings()));
         AutoExcel.save(outputPath, paras);
     }
 
