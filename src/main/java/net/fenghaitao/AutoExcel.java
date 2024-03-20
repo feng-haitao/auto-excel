@@ -229,8 +229,13 @@ public class AutoExcel {
             try {
                 if (dataSourceType == DataSourceType.List) {
                     for (Object record : (List) directExportPara.getDataSource()) {
-                        writeRecordByFieldSetting(sheet, fieldSettings, record, fieldNameFields,
-                            rowIndex, exportContext);
+                        if (record instanceof List) {
+                            writeRecordByFieldSetting(sheet, fieldSettings, record,
+                                    rowIndex, exportContext);
+                        } else {
+                            writeRecordByFieldSetting(sheet, fieldSettings, record,fieldNameFields,
+                                    rowIndex, exportContext);
+                        }
                         ++rowIndex;
                     }
                 } else {
@@ -468,6 +473,29 @@ public class AutoExcel {
             ++colIndex;
         }
     }
+
+    /**
+     * Write a record to sheet according to the fieldSettings
+     */
+    private static void writeRecordByFieldSetting(Sheet sheet,
+                                                  List<FieldSetting> fieldSettings,
+                                                  Object dataSourceRecord,
+                                                  int rowIndex,
+                                                  ExportContext exportContext) throws IllegalAccessException {
+        int colIndex = 0;
+        List listData = (List) dataSourceRecord;
+        for (int i = 0; i < fieldSettings.size(); i++) {
+            Object value = listData.get(i);
+            Cell cell = SheetUtil.setValue(sheet, rowIndex, colIndex, value, exportContext);
+            CellUtil.setStyle(cell, value, exportContext);
+            exportContext.refreshMaxColumnWidth(sheet.getSheetName(), colIndex, value);
+            colIndex++;
+        }
+    }
+
+
+
+
 
     /**
      * Assign value to the aggregate cells
