@@ -26,6 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static net.fenghaitao.utils.ClassUtil.mapFieldNameField;
+
 public class AutoExcel {
     private static final String regCellName = "'?%s'?!\\$([a-z]+)\\$([0-9]+)";
     private static final Pattern cellRefPattern = Pattern.compile("([a-z]+)([0-9]+)", Pattern.CASE_INSENSITIVE);
@@ -202,6 +204,8 @@ public class AutoExcel {
         exportContext.end(outputPath);
     }
 
+    //如果具体数据为list，title与数据填充都完全不一样，需要拆开
+
     public static void createSheet(ExportContext exportContext,DirectExportPara directExportPara) {
         Workbook workbook = exportContext.getWorkbook();
         Sheet sheet;
@@ -213,16 +217,57 @@ public class AutoExcel {
         else
             sheet = workbook.createSheet(directExportPara.getSheetName());
 
-        DataSourceType dataSourceType = directExportPara.getDataSourceType();
-        Map<String, Field> fieldNameFields = mapFieldNameField(directExportPara.getObjectType());
+        if (List.class.isAssignableFrom(directExportPara.getObjectType())) {
+            createListSheet(directExportPara,sheet,exportContext);
+        } else {
+            createProjectSheet(directExportPara, sheet, exportContext);
+        }
 
+        SheetUtil.setColumnWidth(sheet, 0, directExportPara.getFieldSettings().size(), exportContext);
+
+    }
+
+    public static void createProjectSheet(DirectExportPara directExportPara,Sheet sheet,
+                                                        ExportContext exportContext) {
+        Map<String, Field> fieldNameFields = mapFieldNameField(directExportPara.getObjectType());
         List<FieldSetting> fieldSettings = directExportPara.getFieldSettings();
+        DataSourceType dataSourceType = directExportPara.getDataSourceType();
+
+
+        int rowIndex = 0;
+        int colIndex = 0;
+        //write title
+        for (FieldSetting fieldSetting : fieldSettings) {
+            SheetUtil.setValue(sheet, rowIndex, colIndex, fieldSetting.getDisplayName(), exportContext)
+                    .setCellStyle(exportContext.getDefaultHeadStyle());
+            exportContext.refreshMaxColumnWidth(sheet.getSheetName(), colIndex, fieldSetting.getDisplayName());
+            ++colIndex;
+        }
+        //write data
+        ++rowIndex;
+        try {
+            if (dataSourceType == DataSourceType.List) {
+                for (Object record : (List) directExportPara.getDataSource()) {
+                    writeRecordByFieldSetting(sheet, fieldSettings, record,fieldNameFields,
+                            rowIndex, exportContext);
+                    ++rowIndex;
+                }
+            } else {
+                writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(),
+                        fieldNameFields, rowIndex, exportContext);
+            }
+        } catch (IllegalAccessException e) {
+            throw new AutoExcelException(e);
+        }
+    }
+
+    public static void createListSheet(DirectExportPara directExportPara,Sheet sheet,ExportContext exportContext) {
+        List<FieldSetting> fieldSettings = directExportPara.getFieldSettings();
+        DataSourceType dataSourceType = directExportPara.getDataSourceType();
+
         //auto generate filedSettings,use filed name as display name
         if (fieldSettings == null || fieldSettings.size() == 0) {
-            fieldSettings = fieldNameFields.values()
-                    .stream()
-                    .map(m -> new FieldSetting(m.getName(), m.getName()))
-                    .collect(Collectors.toList());
+            throw new AutoExcelException("List title is null");
         }
         int rowIndex = 0;
         int colIndex = 0;
@@ -238,25 +283,17 @@ public class AutoExcel {
         try {
             if (dataSourceType == DataSourceType.List) {
                 for (Object record : (List) directExportPara.getDataSource()) {
-                    if (record instanceof List) {
-                        writeRecordByFieldSetting(sheet, fieldSettings, record,
-                                rowIndex, exportContext);
-                    } else {
-                        writeRecordByFieldSetting(sheet, fieldSettings, record,fieldNameFields,
-                                rowIndex, exportContext);
-                    }
+                    writeRecordByFieldSetting(sheet, fieldSettings, record, rowIndex, exportContext);
                     ++rowIndex;
                 }
             } else {
                 writeRecordByFieldSetting(sheet, fieldSettings, directExportPara.getDataSource(),
-                        fieldNameFields, rowIndex, exportContext);
+                        rowIndex, exportContext);
             }
         }
         catch (IllegalAccessException e) {
             throw new AutoExcelException(e);
         }
-        SheetUtil.setColumnWidth(sheet, 0, fieldSettings.size(), exportContext);
-
     }
 
     /**
@@ -375,16 +412,7 @@ public class AutoExcel {
         return blockNameResolvers;
     }
 
-    /**
-     * Generate filedName-properties key value mapping
-     */
-    private static Map<String, Field> mapFieldNameField(Class aClass) {
-        Map<String, Field> result = new HashMap<>(16);
-        for (Field field : aClass.getDeclaredFields())
-            result.put(field.getName().toLowerCase(), field);
 
-        return result;
-    }
 
     /**
      * ReLocate the cell. After the row is moved, the original cell position changes and the cell location saved in the

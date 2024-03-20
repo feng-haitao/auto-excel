@@ -1,8 +1,12 @@
 package net.fenghaitao.parameters;
 
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static net.fenghaitao.utils.ClassUtil.mapFieldNameField;
 
 /**
  * The parameter for exporting directly
@@ -16,17 +20,25 @@ public class DirectExportPara extends ExportPara {
     private List<FieldSetting> fieldSettings;
 
     public DirectExportPara(Object dataSource) {
-        super.setDataSource(dataSource);
+        this(dataSource,null);
     }
 
     public DirectExportPara(Object dataSource, List<FieldSetting> fieldSettings) {
-        super.setDataSource(dataSource);
-        this.fieldSettings = fieldSettings;
+        this(dataSource,null,fieldSettings);
+
     }
 
     public DirectExportPara(Object dataSource, String sheetName, List<FieldSetting> fieldSettings) {
         super.setDataSource(dataSource);
         this.sheetName = sheetName;
+
+        //auto generate filedSettings,use filed name as display name
+        if (CollectionUtils.isEmpty(fieldSettings)) {
+            fieldSettings = mapFieldNameField(this.getObjectType()).values()
+                    .stream()
+                    .map(m -> new FieldSetting(m.getName(), m.getName()))
+                    .collect(Collectors.toList());
+        }
         this.fieldSettings = fieldSettings;
     }
 }
